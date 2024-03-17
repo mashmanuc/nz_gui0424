@@ -10,7 +10,7 @@ def predmety(code):
   data=[]
   sup = BeautifulSoup(code , 'html.parser')
   items=sup.find_all('table',class_='journal-choose')
-
+  user=sup.find('div',class_='h-user-info clear').text
   tadles=items[0].find_all('tr')
   for taab in tadles:
       predmet=taab.find('td').text
@@ -22,7 +22,9 @@ def predmety(code):
               klass=kl.text
               data.append({klass+' '+predmet:silka})
               # print({klass+' '+predmet:silka})
-  return data
+  return data,user
+
+# print(predmety(code))
 def posh_daty(num):
     # Вкладена функція для пошуку останнього записаного уроку на сторінці з номером 'i'
     def posh_daty_is(i, f_ost=None):
@@ -47,8 +49,6 @@ def posh_daty(num):
             for item in items:
                 # Отримання номера уроку та дати
                 num_str = item.find('div', class_='dzc-lesson-number').get_text().replace('\xa0', '')
-                # print("Шукаю num_str ", num_str ) 
-
                 # Отримання посилання на урок
                 href = item.find('a', class_='dz-edit modal-box').get('href')
                 try:
@@ -58,9 +58,7 @@ def posh_daty(num):
                         prapor=num_str
                     else:
                         last_recorded_lesson = int(prapor)+1, href,i
-                        
                         return last_recorded_lesson
-                        
                 except:
                     return None
         # Якщо немає записів уроків на сторінці
@@ -69,9 +67,7 @@ def posh_daty(num):
             href = items[0].find('a', class_='dz-edit modal-box').get('href')
             # Зберігаємо номер та посилання першого уроку на сторінці
             last_recorded_lesson = int(f_ost)+1, href,i
-
         return last_recorded_lesson
-
     return posh_daty_is(1)
 def posh_daty2(code):
     """Видає  перший не записаний урок"""
@@ -85,7 +81,6 @@ def posh_daty2(code):
         href=item.find('a', class_='dz-edit modal-box').get('href')
         if ( num_str )and data :
             pr=int(num_str)
-            
         else :
             pr+=1
             break
