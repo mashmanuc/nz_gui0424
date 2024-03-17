@@ -3,16 +3,16 @@ from f_file import*
 from datetime import datetime
 jurnal = 'https://nz.ua/journal/list'
 
-async def run_main(login, password, jurnal, save_password):
+async def run_main(login, password, jurnal):
     """Функція для виконання основної програми."""
-    return await main(login, password, jurnal, save_password)
+    return await main(login, password, jurnal)
 
-def run_asyncio_loop(login, password, jurnal, save_password):
+def run_asyncio_loop(login, password, jurnal):
     """Функція для запуску асинхронного циклу."""
-    return asyncio.run(run_main(login, password, jurnal, save_password))
+    return asyncio.run(run_main(login, password, jurnal))
 
-def run_program(root, login, password, save_password):
-    data = run_asyncio_loop(login, password, jurnal, save_password)
+def run_program(root, login, password):
+    data = run_asyncio_loop(login, password, jurnal)
     if data is not None:
         save_uroki_to_json(login,data)
         root.destroy()
@@ -37,16 +37,16 @@ def run_zapis(login, password, jurnal, kl, kil):
 def run_gui():
     """Функція для створення графічного інтерфейсу."""
     root = tk.Tk()
-    root.title("Запустити Основну Програму")
+    root.title("Автозаповнення НЗ")
     root.geometry("400x200")
     root.configure(bg="#E4EFE7") 
     login_var = tk.StringVar()
     password_var = tk.StringVar()
     save_password_var = tk.BooleanVar()
     save_password_var.set(False)
+
     try:
         with open('credentials.json', 'r') as f:
-            log_pas()
             login_var.set(log_pas()[0])
             password_var.set(log_pas()[1])
     except FileNotFoundError:
@@ -60,14 +60,21 @@ def run_gui():
     password_entry = tk.Entry(root, textvariable=password_var, show="*")
     password_entry.grid(row=1, column=1, padx=5, pady=5)
 
-    save_password_checkbtn = tk.Checkbutton(root, text="Зберегти пароль",bg="#E4EFE7", variable=save_password_var)
-    save_password_checkbtn.grid(row=2, columnspan=2, padx=5, pady=5)
+    # save_password_checkbtn = tk.Checkbutton(root, text="Зберегти пароль",bg="#E4EFE7", variable=save_password_var)
+    # save_password_checkbtn.grid(row=2, columnspan=2, padx=5, pady=5)
 
     run_button = tk.Button(root, text="Запустити Програму",bg="#A0C9AB",
-                           command=lambda: run_program(root, login_var.get(), password_var.get(), save_password_var.get()))
+                           command=lambda: run_program(root, login_var.get(), password_var.get()))
     run_button.grid(row=3, columnspan=2, padx=5, pady=5)
+
     root.mainloop()
+
+    
+
+
 """****************************create_main_window********************************************"""
+
+
 def create_main_window():
     """Функція для створення вікна з результатами."""
     def zm_user():
@@ -91,8 +98,8 @@ def create_main_window():
         pass
 
     root2 = tk.Tk()
-    root2.title("Результати")
-    root2.geometry("800x500")
+    root2.title("Автозаповнення НЗ")
+    root2.geometry("900x600")
     root2.configure(bg="#E4EFE7")  # Сіро-зеленуватий відтінок
 
     login_var = tk.StringVar()
@@ -153,8 +160,12 @@ def create_main_window():
         about_button.grid(row=row+1, columnspan=5, pady=10)
     except:
             pass
+    
+    
     root2.mainloop()
-"""****************************_main_********************************************"""
+
+
+
 
 if __name__ == "__main__":
     credentials = log_pas()

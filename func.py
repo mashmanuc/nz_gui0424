@@ -12,11 +12,11 @@ from sup import posh_daty,predmety,posh_daty2
 from tkinter import filedialog, messagebox
 from f_file import save_user
 
-async def main(login, password,jurnal,save_password=False,log_text=None):
+async def main(login, password,jurnal):
     options = webdriver.ChromeOptions()
     options.headless = True  # Встановлюємо опцію headless
     
-    if save_password:
+    if login and password:
         with open('credentials.json', 'w') as f:
             json.dump({"login": login, "password": password}, f)
     else:
@@ -53,18 +53,23 @@ async def main(login, password,jurnal,save_password=False,log_text=None):
             try:
                 await driver.get(jurnal, wait_load=True, timeout=10)  # Очікуємо максимум 10 секунд на завантаження сторінки
             except TimeoutException:
-                print("Час очікування вичерпано. Сторінка не завантажилась за вказаний час.",file=log_text)
+                print("Час очікування вичерпано. Сторінка не завантажилась за вказаний час.")
             else:
                 page_source = await driver.page_source
-            print('Зайшов під логіном        ',login)
-            predmety_data = predmety(page_source)[0]
-            user= predmety(page_source)[1]
-            save_user(login, user)
-            print('Зараз на сторінці  ',user)
-            await save_page('html.html', page_source)
-            print('Інфомацію про уроки отримано')
-            await asyncio.sleep(2)
-            return predmety_data
+            try:
+                predmety_data = predmety(page_source)[0]
+                print('Зайшов під логіном        ',login)
+                user= predmety(page_source)[1]
+                save_user(login, user)
+                print('Зараз на сторінці  ',user)
+                await save_page('html.html', page_source)
+                print('Інфомацію про уроки отримано')
+                await asyncio.sleep(2)
+                return predmety_data
+            except:
+                print("Проблеми з логіном або паролем")
+                return None
+
 async def main_zap(login, password,jurnal,kl,kil,log_text=None):
     options = webdriver.ChromeOptions()
     delete_files_pattern('pages')
