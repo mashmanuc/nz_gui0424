@@ -103,7 +103,6 @@ def save_user(login, user):
     with open(f'{login}/{login}_user.json', 'w') as f:
         json.dump(user, f)
 
-save_user('login', 'user')
 def get_user(login):
     """Функція для збереження уроків та їх посилань."""
     # Перевіряємо, чи існує папка login
