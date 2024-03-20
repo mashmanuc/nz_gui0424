@@ -7,7 +7,7 @@ kl = 'a8'
 start_number = 1  # Початкове значення номера
 login='login'
 
-docx_file = u'E:\\project\\PROBA\\Календарне  (2023 =2024 с.математика 5-9кл)\\6м.docx'
+docx_file = u'E:\\project\\PROBA\\Календарне  (2023 =2024 с.математика 5-9кл)\m6s.docx'
 csv_folder = f'csv_{login}'
 csv_file = os.path.join(csv_folder, f'{kl}.csv')
 def  is_num(text):
@@ -56,4 +56,4 @@ def word_to_csv(docx_file, login,kl):
 
 if __name__ == "__main__":
 
-    word_to_csv(docx_file,  csv_file)
+    word_to_csv(docx_file,  csv_file , kl)

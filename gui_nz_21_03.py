@@ -1,4 +1,4 @@
-from func import main, main_zap
+from func import main, main_zap,del_zap
 from f_file import*
 from datetime import datetime
 jurnal = 'https://nz.ua/journal/list'
@@ -32,6 +32,20 @@ def run_zapis(login, password, jurnal, kl, kil):
     data = run_asyncio_loop_z(login, password, jurnal, kl, kil)
     if data is not None:
         print('Всі уроки записані успішно')
+    else:
+        messagebox.showerror("Помилка2", "Невірно введений логін або пароль")
+"""*******************************************************"""
+async def run_del_z(login, password, jurnal,  kil):
+    """Функція для виконання програми з записом."""
+    return await del_zap(login, password, jurnal,  kil)
+def run_del_asyncio_loop_z(login, password, jurnal, kil):
+    """Функція для запуску асинхронного циклу з записом."""
+    return asyncio.run(run_del_z(login, password, jurnal,  kil))
+def del_zapis(login, password, jurnal,  kil):
+    """Функція для виконання запису."""
+    data = run_del_asyncio_loop_z(login, password, jurnal, kil)
+    if data is not None:
+        print('Всі уроки Видалені успішно')
     else:
         messagebox.showerror("Помилка2", "Невірно введений логін або пароль")
 def run_gui():
@@ -99,7 +113,7 @@ def create_main_window():
 
     root2 = tk.Tk()
     root2.title("Автозаповнення НЗ")
-    root2.geometry("900x600")
+    root2.geometry("900x800")
     root2.configure(bg="#E4EFE7")  # Сіро-зеленуватий відтінок
 
     login_var = tk.StringVar()
@@ -115,18 +129,17 @@ def create_main_window():
     except FileNotFoundError:
         print('Не можу прочитати логін або пароль')
     try:
-        tk.Label(root2, text=f"{get_user(login)}", bg="#E4EFE7").grid(row=0, column=2, padx=5, pady=5)
+        tk.Label(root2, text=f"{get_user(login)}", bg="#E4EFE7").grid(row=0, column=1, padx=5, pady=5)
     
         run_button = tk.Button(root2, text="Змінити користувача", command=lambda: zm_user(), bg="#A0C9AB")
-        run_button.grid(row=0, column=6, padx=5, pady=5)
+        run_button.grid(row=0, column=4, padx=5, pady=5)
         about_button = tk.Button(root2, text="Про програму", command=show_about_info, bg="#A0C9AB")
-        about_button.grid(row=0, column=7, padx=5, pady=5)
+        about_button.grid(row=0, column=5, padx=5, pady=5)
 
 
         tk.Label(root2, text="Предмет", bg="#E4EFE7").grid(row=2, column=0, padx=5, pady=5)
         tk.Label(root2, text="Файл Календарного", bg="#E4EFE7").grid(row=2, column=1, padx=5, pady=5)
         tk.Label(root2, text="Кількість уроків", bg="#E4EFE7").grid(row=2, column=3, padx=5, pady=5)
-        
 
         row = 3
         for item in data:
@@ -135,7 +148,8 @@ def create_main_window():
 
                 file_entry = tk.Entry(root2)
                 file_entry.grid(row=row, column=1, padx=5, pady=5)
-                file_button = tk.Button(root2, text="Вибрати файл", command=lambda entry=file_entry, k=key: select_file(entry, login, k), bg="#A0C9AB")
+                file_button = tk.Button(root2, text="Вибрати файл", command=lambda entry=file_entry, k=key: select_file(entry, login, k),
+                                         bg="#A0C9AB")
                 file_button.grid(row=row, column=2, padx=5, pady=5)
 
                 lesson_count_var = tk.StringVar()
@@ -153,9 +167,14 @@ def create_main_window():
                 vcmd = root2.register(validate_natural_number)
                 lesson_count_entry.config(validate="key", validatecommand=(vcmd, "%d", "%P"))
 
-                save_button = tk.Button(root2, text="Записати", command=lambda entry=file_entry, login=login, password=password, jurnal='https://nz.ua' + value, kl=key, kil=lesson_count_var: run_zapis(login, password, jurnal, kl, kil.get()), bg="#A0C9AB")
+                save_button = tk.Button(root2, text="Записати", command=lambda entry=file_entry, login=login, password=password,
+                                         jurnal='https://nz.ua' + value, kl=key, kil=lesson_count_var:
+                                           run_zapis(login, password, jurnal, kl, kil.get()), bg="#A0C9AB")
                 save_button.grid(row=row, column=4, padx=5, pady=5)
-
+                del_button = tk.Button(root2, text="Видалити", command=lambda entry=file_entry, login=login, password=password,
+                                        jurnal='https://nz.ua' + value, kl=key, kil=lesson_count_var: 
+                                        del_zapis(login, password, jurnal,  kil.get()), bg="#A0C9AB")
+                del_button.grid(row=row, column=5, padx=5, pady=5)
                 file_path = get_saved_file_path(login, key)
                 if file_path:
                     file_entry.insert(tk.END, file_path)

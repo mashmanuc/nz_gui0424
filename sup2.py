@@ -4,7 +4,7 @@ def readd(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
       html_code = file.read()
     return html_code
-# code=(readd('html.html'))
+code=(readd('pages4.html'))
 
 def predmety(code):
   data=[]
@@ -23,7 +23,23 @@ def predmety(code):
               data.append({klass+' '+predmet:silka})
               # print({klass+' '+predmet:silka})
   return data,user
-
+def posh_vidalena(code):
+    """Видає  останій записаний урок"""
+    sup = BeautifulSoup(code , 'html.parser')
+    items=sup.find_all('div',class_='clear rltv')
+    pr=0
+    for item in items:
+        num_str= item.find('div',class_='dzc-lesson-number').get_text()
+        num_str = num_str.replace('\xa0', '')
+        data=item.find('div',class_='dzc-date').get_text()
+        if ( num_str )and data :
+            pr=int(num_str)
+        else :
+            
+            break    
+        
+        href=item.find('a', class_='dz-edit modal-box').get('href')
+    return pr,href
 # print(predmety(code))
 def posh_daty(num):
     # Вкладена функція для пошуку останнього записаного уроку на сторінці з номером 'i'
@@ -69,39 +85,8 @@ def posh_daty(num):
             last_recorded_lesson = int(f_ost)+1, href,i
         return last_recorded_lesson
     return posh_daty_is(1)
-def posh_daty2(code):
-    """Видає  перший не записаний урок"""
-    sup = BeautifulSoup(code , 'html.parser')
-    items=sup.find_all('div',class_='clear rltv')
-    pr=0
-    for item in items:
-        num_str= item.find('div',class_='dzc-lesson-number').get_text()
-        num_str = num_str.replace('\xa0', '')
-        data=item.find('div',class_='dzc-date').get_text()
-        href=item.find('a', class_='dz-edit modal-box').get('href')
-        if ( num_str )and data :
-            pr=int(num_str)
-        else :
-            pr+=1
-            break
-    return pr,href
-def posh_vidalena(code):
-    """Видає  останій записаний урок"""
-    sup = BeautifulSoup(code , 'html.parser')
-    items=sup.find_all('div',class_='clear rltv')
-    pr=0
-    for item in items:
-        num_str= item.find('div',class_='dzc-lesson-number').get_text()
-        num_str = num_str.replace('\xa0', '')
-        data=item.find('div',class_='dzc-date').get_text()
-        if ( num_str )and data :
-            pr=int(num_str)
-        else :
-            
-            break    
-        
-        href=item.find('a', class_='dz-edit modal-box').get('href')
-    return pr,href
+
+
 
 def del_posh_daty(num):
     # Вкладена функція для пошуку останнього записаного уроку на сторінці з номером 'i'
@@ -141,3 +126,6 @@ def del_posh_daty(num):
                 href = item.find('a', class_='dz-edit modal-box').get('href')
         return last_recorded_lesson
     return posh_daty_is(1)
+# data=del_posh_daty(num=4)
+# print(data)
+print(posh_vidalena(code))

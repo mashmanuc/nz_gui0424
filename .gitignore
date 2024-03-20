@@ -3,3 +3,7 @@ env/
 *.jpg
 dist/
 *.json
+.docx
+*.html
+doc/
+*mashmanuc/
