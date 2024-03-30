@@ -11,7 +11,7 @@ import time
 from sup import posh_daty,predmety,posh_daty2,posh_vidalena,del_posh_daty
 from tkinter import filedialog, messagebox
 from f_file import save_user
-
+link_in_excel='https://nz.ua/journal/export-xls?journal='
 async def login_to_website(driver, login, password):
     await driver.get('https://nz.ua/')
     await asyncio.sleep(0.5)
@@ -35,6 +35,9 @@ async def login_to_website(driver, login, password):
 
 async def main(login, password, jurnal):
     options = webdriver.ChromeOptions()
+    download_folder=f'excel_jurnal_{login}'
+    create_download_folder(download_folder)
+    options.add_argument(f"--download.default_directory={download_folder}")  # Вказуємо папку для завантажень
     if login and password:
         with open('credentials.json', 'w') as f:
             json.dump({"login": login, "password": password}, f)
@@ -63,8 +66,9 @@ async def main(login, password, jurnal):
             save_user(login, user)
             print('Зараз на сторінці  ', user)
             await save_page('html.html', page_source)
-            print('Інфомацію про уроки отримано')
+            
             await asyncio.sleep(2)
+            print('Інфомацію про уроки отримано')
             return predmety_data
         except:
             print("Проблеми з логіном або паролем")
@@ -117,9 +121,85 @@ async def del_zap(login, password, jurnal, kil ):
             await del_povtor(driver,url)
             await asyncio.sleep(0.5)
         return data
-           
+"""**************save_excel**********************************"""        
+async def save_exel(login, password):
+    options = webdriver.ChromeOptions()
+    download_folder=f'excel_jurnal_{login}'
+    create_download_folder(download_folder)
+    options.add_argument(f"--download.default_directory={download_folder}")  # Вказуємо папку для завантажень
+    async with webdriver.Chrome(options=options) as driver:
+            await login_to_website(driver, login, password)
+            await main_excel(driver,login,url=None)
             
-               
+            # await asyncio.sleep(2)
+            # for i in predmety_data:
+            #     s_link = link_in_excel + next(iter(i.values()))
+            #     print(s_link)
+                
+                
+                
+                        
+          
+"""********************excel_povtor********************""" 
+from pathlib import Path
+import shutil
+from typing import Union        
+async def main_excel(driver, login, url):
+    # Існуючий код для знаходження та натискання кнопок
+
+    try:
+        print('шукаю')
+        button_exl = await WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div[1]/div/div[1]/a')))
+        print('знайшов')
+        await asyncio.sleep(0.5)
+        await button_exl.click()
+        print('натиснув')
+
+        button_dow = await WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[2]/div[1]/div/div[1]/ul/li[2]/a')))
+        print('знайшов')
+        await asyncio.sleep(0.5)
+        await button_dow.click()
+        print('натиснув2')
+
+        # Чекаємо на завантаження файлу та отримуємо його шлях
+        downloaded_file_path = await wait_for_file_download(driver)
+        if downloaded_file_path:
+            save_path = Path(f'excel_jurnal_{login}/downloaded_file.xlsx')
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(downloaded_file_path), str(save_path))
+            print(f'Файл було збережено у {save_path}')
+        else:
+            print('Не вдалося знайти завантажений файл')
+
+    except TimeoutException:
+        print('Повільний інтернет або елемент не знайдено')
+async def wait_for_file_download(driver) -> Union[Path, None]:
+    """
+    Чекає на завершення завантаження файлу та повертає шлях до нього.
+    """
+    download_dir = await driver.execute_script("return window.navigator.msSaveOrOpenBlob.toString().match(/[^\"]*\"/)[0].slice(1, -1)")
+    if not download_dir:
+        return None
+
+    await driver.execute_script("window.navigator.msSaveOrOpenBlob = function() {}")
+    file_path = None
+    start_time = time.time()
+
+    while not file_path and time.time() - start_time < 60:
+        for entry in os.listdir(download_dir):
+            if entry.endswith(".crdownload"):
+                continue
+            file_path = Path(download_dir) / entry
+            break
+        await asyncio.sleep(1)
+
+    if not file_path:
+        return None
+
+    return file_path
+            
 async def save_page(file, text):
     with open(file, 'w', encoding='utf-8') as f:
         f.write(text)
@@ -138,16 +218,9 @@ async def zapis(driver,new):
     await theme_field.write(new[1])
     await number_field.write(new[0])
     try:
-        if await WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#fancybox-content > div > div > form > fieldset > div.submit > a'))):
-            z_button =await WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#fancybox-content > div > div > form > fieldset > div.submit > a')))
-            # print('CSS_SELECTOR -зберегти')
-        
-        else:print('Повільний інтернет або кнопку зберегти не знайдено')
+        z_button = await driver.find_element(By.XPATH, '/html/body/div[25]/div/div[1]/div/div/form/fieldset/div[8]/a')
     except:
-        print('Повільний інтернет або елемент не знайдено')
-        
+        print('Повільний інтернет або кнопку не знайдено')
         return
     await asyncio.sleep(1)
     await z_button.click()
@@ -168,8 +241,7 @@ async def del_zapis(driver):
     await number_field.clear()
     await asyncio.sleep(1)
     try:
-        z_button =await WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#fancybox-content > div > div > form > fieldset > div.submit > a')))
+        z_button = await driver.find_element(By.XPATH, '/html/body/div[25]/div/div[1]/div/div/form/fieldset/div[8]/a')
     except:
         print('Повільний інтернет або кнопку не знайдено')
         return
@@ -278,3 +350,15 @@ def delete_files_pattern(pattern):
     if not found_files:
         print(f"No files found matching the pattern '{pattern}*.html'.")
 """**********************************************************************"""
+def create_download_folder(download_folder):
+    # Перевіряємо, чи існує папка
+    if not os.path.exists(download_folder):
+        try:
+            # Створюємо папку, якщо вона не існує
+            os.makedirs(download_folder)
+            print(f"Папка {download_folder} створена успішно.")
+        except OSError:
+            print(f"Сталася помилка при створенні папки {download_folder}.")
+            raise
+    else:
+        print(f"Папка {download_folder} вже існує.")

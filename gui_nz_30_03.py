@@ -1,4 +1,4 @@
-from func import main, main_zap,del_zap
+from func import main, main_zap, del_zap
 from f_file import*
 from datetime import datetime
 jurnal = 'https://nz.ua/journal/list'
@@ -13,8 +13,6 @@ def run_asyncio_loop(login, password, jurnal):
 
 def run_program(root, login, password):
     data = run_asyncio_loop(login, password, jurnal)
-    print('data')
-    # print(data)
     if data is not None:
         save_uroki_to_json(login,data)
         root.destroy()
@@ -22,7 +20,7 @@ def run_program(root, login, password):
         create_main_window()
     else:
         messagebox.showerror("Помилка", "Невірно введений логін або пароль")
-
+"""****************main_z**************"""
 async def run_main_z(login, password, jurnal, kl, kil):
     """Функція для виконання програми з записом."""
     return await main_zap(login, password, jurnal, kl, kil)
@@ -36,6 +34,14 @@ def run_zapis(login, password, jurnal, kl, kil):
         print('Всі уроки записані успішно')
     else:
         messagebox.showerror("Помилка2", "Невірно введений логін або пароль")
+"""*******************************************************"""
+# """****************excel_save**************"""
+# async def run_excel(login, password):
+#     """Функція для виконання програми з записом."""
+#     return await save_exel(login, password)
+# def run_asyncio_excel(login, password):
+#     """Функція для запуску асинхронного циклу з записом."""
+#     return asyncio.run(run_excel(login, password))
 """*******************************************************"""
 async def run_del_z(login, password, jurnal,  kil):
     """Функція для виконання програми з записом."""
@@ -132,6 +138,8 @@ def create_main_window():
         print('Не можу прочитати логін або пароль')
     try:
         tk.Label(root2, text=f"{get_user(login)}", bg="#E4EFE7").grid(row=0, column=1, padx=5, pady=5)
+        # run_button_exl = tk.Button(root2, text="Зберегти в Excel", command=lambda: run_asyncio_excel(login,password), bg="#A0C9AB")
+        # run_button_exl.grid(row=0, column=3, padx=5, pady=5)
     
         run_button = tk.Button(root2, text="Змінити користувача", command=lambda: zm_user(), bg="#A0C9AB")
         run_button.grid(row=0, column=4, padx=5, pady=5)

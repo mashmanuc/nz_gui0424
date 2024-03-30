@@ -138,16 +138,9 @@ async def zapis(driver,new):
     await theme_field.write(new[1])
     await number_field.write(new[0])
     try:
-        if await WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#fancybox-content > div > div > form > fieldset > div.submit > a'))):
-            z_button =await WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#fancybox-content > div > div > form > fieldset > div.submit > a')))
-            # print('CSS_SELECTOR -зберегти')
-        
-        else:print('Повільний інтернет або кнопку зберегти не знайдено')
+        z_button = await driver.find_element(By.XPATH, '/html/body/div[25]/div/div[1]/div/div/form/fieldset/div[8]/a')
     except:
-        print('Повільний інтернет або елемент не знайдено')
-        
+        print('Повільний інтернет або кнопку не знайдено')
         return
     await asyncio.sleep(1)
     await z_button.click()
@@ -168,8 +161,7 @@ async def del_zapis(driver):
     await number_field.clear()
     await asyncio.sleep(1)
     try:
-        z_button =await WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#fancybox-content > div > div > form > fieldset > div.submit > a')))
+        z_button = await driver.find_element(By.XPATH, '/html/body/div[25]/div/div[1]/div/div/form/fieldset/div[8]/a')
     except:
         print('Повільний інтернет або кнопку не знайдено')
         return
@@ -195,11 +187,7 @@ async def povtor(driver,login,url):
         await asyncio.sleep(0.5)
         print("  ЗАПИСАВ        " , new)
 async def povtor_1(driver,login,url,num,href):
-        print(url)
-        print(num)
-        print(href)
         await driver.get(url)
-        await asyncio.sleep(0.5)
         button1 = await WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, f'a[href*="{href}"]'))        )
         await button1.click()
@@ -211,9 +199,7 @@ async def povtor_1(driver,login,url,num,href):
 
 async def del_povtor(driver,url):
         await driver.get(url,wait_load=True, timeout=10)
-        await asyncio.sleep(0.5)
         page_source = await driver.page_source
-        await asyncio.sleep(0.5)
         (num ,href )= posh_vidalena(page_source)
         # print(num ,href)
         await asyncio.sleep(0.5)
